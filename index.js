@@ -18,6 +18,11 @@ const backButton = new Pin({ id: 198, direction: 'in', activeLow: true });
 // timerObject.setInterval(e, '', '1000u');
 
 
+/* setInterval(() => {
+	requiredStep = Math.floor(Math.random() * 282) + 1  
+}, Math.floor(Math.random() * 1000) + 200); */
+
+
 
 const stepsPerHour = 282;
 const stepsPerFullSweep = stepsPerHour * 12;
@@ -111,8 +116,10 @@ const app = express();
 const port = 8080;
 
 app.get('/plus', (req, res) => {
-	stepClock(0);
-	res.end()
+	for (let i = 0; i <= req.query.val; i++) {
+		stepClock(0);
+	}
+	res.end("Thanks, you can go back now");
 });
 
 app.get('/', (req, res) => {
@@ -144,8 +151,10 @@ app.get('/shutdown', (req, res) => {
 });
 
 app.get('/minus', (req, res) => {
-	stepClock(1);
-	res.end()
+	for (let i = 0; i <= req.query.val; i++) {
+		stepClock(1);
+	}	
+	res.end("Thanks, you can go back now");
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
@@ -157,7 +166,7 @@ app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 let tunnel;
 const setupTunnel = () => {
 	tunnel = localtunnel(8080, {
-		subdomain: 'internet-of-clocks'
+		subdomain: 'laikrodis'
 	}, function(err, tunnel) {
 	    if (err) {
 	    	console.log('tunnel fail');
