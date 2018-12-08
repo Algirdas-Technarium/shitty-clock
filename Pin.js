@@ -20,27 +20,22 @@ class Pin {
 		fs.writeFileSync(this.dataFile('direction'), direction);
 
 		fs.writeFileSync(this.dataFile('active_low'), activeLow ? 1 : 0);
-
-		this.currentValue = Number(fs.readFileSync(`/sys/class/gpio/gpio${this.id}/value`).toString('utf8'));
-
-		this.valueFd = fs.openSync(`/sys/class/gpio/gpio${this.id}/value`, 'r+');
 	}
 
 	set value(value) {
-		if (this.currentValue != value) {
-			this.currentValue = value;
-			fs.write(this.valueFd, value ? one : zero, () => {});
-		}
+
+		fs.writeFileSync(`/sys/class/gpio/gpio${this.id}/value`, value);
 	}
 
-	readValue() {
+	/* readValue() {
 		const val = Number(fs.readFileSync(`/sys/class/gpio/gpio${this.id}/value`).toString('utf8'));
 		// console.log('buffValue', val, typeof val);
 		return val;
-	}
+	} */
 
 	flip() {
-		this.value = ~this.currentValue;
+		const currentValue = Number(fs.readFileSync(`/sys/class/gpio/gpio${this.id}/value`).toString('utf8'));
+		this.value = currentValue ? 0 : 1;
 	}
 }
 
