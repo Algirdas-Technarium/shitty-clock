@@ -7,10 +7,12 @@ const express = require('express');
 const spawnSync = require('child_process').spawnSync;
 require('moment-timezone')
 
+const serialHelper = require('./serial.js');
+
 const stepper = new Pin({ id: 12 });
 const direction = new Pin({ id: 11 });
 
-const tickEverySeconds = 3600 / 141.25; // Full Step of the Servo
+const tickEverySeconds = 3600 / 141.25 / 8; // Full Step of the Servo
 let currentClockTick = Math.floor(moment().valueOf() / 1000 / tickEverySeconds);
 let desiredClockTick = null;
 let clockCalibration = 0;
@@ -44,6 +46,37 @@ const adjustClock = () => {
 };
 
 setInterval(adjustClock, 20);
+
+
+
+let last = null;
+serialHelper.on('data', (raw) => {
+	data = raw.toString('utf8').trim();
+
+	const back = 'FFE01F';
+	const forward = 'FFA857';
+	const repeat = 'FFFFFFFF';
+
+	if (data === back) {
+		last = back;
+		clockCalibration -= 1;
+		//console.log('Back');
+	} else if (data === forward) {
+		last = forward;
+		clockCalibration += 1;
+		//console.log('Forward');
+	} else if (data === repeat) {
+		if (last === back) {
+			clockCalibration -= 1;
+			//console.log('Back');
+		} else if (last === forward) {
+			clockCalibration += 1;
+			//console.log('Forward');
+		}
+	}
+});
+
+
 
 {
 	const app = express();
